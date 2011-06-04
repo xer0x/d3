@@ -4,7 +4,7 @@
   height: 310px;
 }
 
-.qq .box, .qq .tick line, .qq .quantile, .qq .diagonal {
+.qq .tick line, .qq .quantile, .qq .diagonal {
   stroke: #aaa;
   fill: none;
 }

@@ -18,7 +18,8 @@ d3.chart.qq = function() {
           xd = domain && domain.call(this, d, i) || [d3.min(qx), d3.max(qx)], // new x-domain
           yd = domain && domain.call(this, d, i) || [d3.min(qy), d3.max(qy)], // new y-domain
           x0, // old x-scale
-          y0; // old y-scale
+          y0, // old y-scale
+          id; // unique id for clip
 
       // Compute the new x-scale.
       var x1 = d3.scale.linear()
@@ -34,40 +35,73 @@ d3.chart.qq = function() {
       if (this.__chart__) {
         x0 = this.__chart__.x;
         y0 = this.__chart__.y;
+        id = this.__chart__.id;
       } else {
         x0 = d3.scale.linear().domain([0, Infinity]).range(x1.range());
         y0 = d3.scale.linear().domain([0, Infinity]).range(y1.range());
+        id = ++d3_chart_qqId;
       }
 
       // Stash the new scales.
-      this.__chart__ = {x: x1, y: y1};
+      this.__chart__ = {x: x1, y: y1, id: id};
 
-      // Update diagonal line.
-      var diagonal = g.selectAll("line.diagonal")
+      // Update the defs and clip path.
+      var defs = g.selectAll("defs")
           .data([null]);
 
-      diagonal.enter().append("svg:line")
-          .attr("class", "diagonal")
-          .attr("x1", x1(yd[0]))
-          .attr("y1", y1(xd[0]))
-          .attr("x2", x1(yd[1]))
-          .attr("y2", y1(xd[1]));
+      defs.enter().append("svg:defs")
+        .append("svg:clipPath")
+          .attr("id", "d3_chart_qq_clip" + id)
+        .append("svg:rect")
+          .attr("width", w)
+          .attr("height", h);
 
-      diagonal.transition()
+      defs.select("rect").transition()
           .duration(duration)
-          .attr("x1", x1(yd[0]))
-          .attr("y1", y1(xd[0]))
+          .attr("width", w)
+          .attr("height", h);
+
+      // Update diagonal line and frame rect.
+      var diagonal = g.selectAll("g.diagonal")
+          .data([null]);
+
+      var diagonalEnter = diagonal.enter().append("svg:g")
+          .attr("class", "diagonal");
+
+      diagonalEnter.append("svg:line")
           .attr("x2", x1(yd[1]))
-          .attr("y2", y1(xd[1]));
+          .attr("y1", y1(xd[0]));
+
+      diagonalEnter.append("svg:rect")
+          .attr("width", x1(yd[1]))
+          .attr("height", y1(xd[0]));
+
+      var diagonalUpdate = diagonal.transition()
+          .duration(duration);
+
+      diagonalUpdate.select("line")
+          .attr("x2", x1(yd[1]))
+          .attr("y1", y1(xd[0]));
+
+      diagonalUpdate.select("rect")
+          .attr("width", x1(yd[1]))
+          .attr("height", y1(xd[0]));
+
+      // Add a group to clip the quantile circles.
+      g.selectAll("g.quantile")
+          .data([null])
+        .enter().append("svg:g")
+          .attr("class", "quantile");
 
       // Update quantile plots.
-      var circle = g.selectAll("circle")
+      var circle = g.select(".quantile").selectAll("circle")
           .data(d3.range(n).map(function(i) {
             return {x: qx[i], y: qy[i]};
           }));
 
       circle.enter().append("svg:circle")
           .attr("class", "quantile")
+          .attr("clip-path", "url(#d3_chart_qq_clip" + id + ")")
           .attr("r", 4.5)
           .attr("cx", function(d) { return x0(d.x); })
           .attr("cy", function(d) { return y0(d.y); })
@@ -243,3 +277,5 @@ function d3_chart_qqX(d) {
 function d3_chart_qqY(d) {
   return d.y;
 }
+
+var d3_chart_qqId = 0;

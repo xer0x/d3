@@ -39,14 +39,8 @@ d3.json("turkers.json", function(turkers) {
       }])
     .enter().append("svg:g")
       .attr("class", "qq")
-      .attr("transform", function(d, i) { return "translate(" + (w + m[1] + m[3]) * i + ")"; });
-
-  g.append("svg:rect")
-      .attr("class", "box")
-      .attr("width", w)
-      .attr("height", h);
-
-  g.call(chart);
+      .attr("transform", function(d, i) { return "translate(" + (w + m[1] + m[3]) * i + ")"; })
+      .call(chart);
 
   g.append("svg:text")
       .attr("dy", "1.3em")
