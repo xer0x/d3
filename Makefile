@@ -128,6 +128,7 @@ d3.layout.js: \
 	src/layout/cluster.js \
 	src/layout/tree.js \
 	src/layout/treemap.js \
+	src/layout/stagger.js \
 	src/end.js
 
 d3.geo.js: \
