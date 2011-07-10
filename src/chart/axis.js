@@ -3,16 +3,32 @@ d3.chart.axis = function() {
       tickCount = 10,
       tickSize = -6,
       tickPadding = 3,
+      open = false,
       scale;
 
   function axis(g) {
     g.each(function(d, i) {
       var g = d3.select(this);
 
-      // If the scale defines a ticks method, then use it to sample ticks from
-      // the domain. Otherwise, we default to the domain itself, such as for
-      // ordinal scales where we want to show each discrete value in the domain.
-      var ticks = scale.ticks ? scale.ticks(tickCount) : scale.domain();
+      // Retrieve the ticks, domain and range from the scale.
+      var ticks = scale.ticks(tickCount),
+          domain = scale.domain(),
+          range = scale.range();
+
+      // If this is a polylinear domain, we just want the extent.
+      if (domain.length !== 2) {
+        domain = [domain[0], domain[domain.length - 1]];
+        range = [range[0], range[range.length - 1]];
+      }
+
+      // In "closed" mode, if the tick value is also in the domain, then we
+      // don't want to draw the line; it will be drawn by the domain path below.
+      // We do, of course, still want to draw the label for the tick. Also, by
+      // toggling the display style rather than adding or removing, it will be
+      // a bit easier to manage transitions.
+      var display = open ? null : function(d) {
+        return domain.indexOf(d) === -1 ? null : "none";
+      };
 
       // If a custom tick format is specified, used that; otherwise, use the
       // scale's tick format. Note this means that a tick format is required if
@@ -28,42 +44,43 @@ d3.chart.axis = function() {
         return this.nodeType ? this.textContent : format.apply(this, arguments);
       });
 
-      // tick enter
+      // Enter a container for incoming ticks.
       var tickEnter = tick.enter().append("svg:g")
           .attr("class", "tick")
           .attr("transform", function(d) { return "translate(" + scale(d) + ",0)"; });
 
+      // Add the tick line.
       tickEnter.append("svg:line")
-          .attr("y2", -tickSize);
+          .attr("y2", -tickSize)
+          .style("display", display);
 
+      // Add the tick label. The ticks are always drawn on the bottom of the
+      // line, so if the tick size is negative, then they are padded to y = 0.
       tickEnter.append("svg:text")
           .attr("text-anchor", "middle")
-          .attr("y", (tickSize < 0 ? -tickSize : 0) + tickPadding)
+          .attr("y", Math.max(-tickSize, 0) + tickPadding)
           .attr("dy", ".71em")
           .text(format);
 
-      // tick update
-      tick.attr("transform", function(d) { return "translate(" + scale(d) + ",0)"; });
+      // Update the tick positions and visibility.
+      tick
+          .attr("transform", function(d) { return "translate(" + scale(d) + ",0)"; })
+        .select("line")
+          .style("display", display);
 
-      // tick exit
+      // Remove any outgoing ticks.
       tick.exit().remove();
 
-      // axis
-      var axis = g.selectAll("line.axis").data([,]);
+      // Select the domain path element. There can be only one (so no exit)!
+      var path = g.selectAll("path.domain").data([,]);
 
-      // axis enter
-      axis.enter().append("svg:line")
-          .attr("class", "axis")
-          .attr("x1", scale.range()[0])
-          .attr("x2", scale.range()[1]);
+      // Enter the domain path element, if this is the first render.
+      path.enter().append("svg:path")
+          .attr("class", "domain")
+          .attr("d", d3_chart_axisPath(range, open ? 0 : -tickSize));
 
-      // axis update
-      axis
-          .attr("x1", scale.range()[0])
-          .attr("x2", scale.range()[1]);
-
-      // axis exit
-      axis.exit().remove();
+      // Recompute the domain path.
+      path.attr("d", d3_chart_axisPath(range, open ? 0 : -tickSize));
     });
   }
 
@@ -91,6 +108,12 @@ d3.chart.axis = function() {
     return axis;
   };
 
+  axis.mode = function(x) {
+    if (!arguments.length) return open ? "open" : "closed";
+    open = (x != "closed");
+    return axis;
+  };
+
   axis.scale = function(x) {
     if (!arguments.length) return scale;
     scale = x;
@@ -99,3 +122,7 @@ d3.chart.axis = function() {
 
   return axis;
 };
+
+function d3_chart_axisPath(range, size) {
+  return "M" + range[0] + "," + size + "V0H" + range[1] + "V" + size;
+}
