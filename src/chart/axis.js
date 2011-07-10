@@ -1,6 +1,6 @@
 d3.chart.axis = function() {
   var tickFormat = null,
-      tickCount = 10,
+      tickFunction = null,
       tickSize = -6,
       tickPadding = 3,
       open = false,
@@ -10,8 +10,8 @@ d3.chart.axis = function() {
     g.each(function(d, i) {
       var g = d3.select(this);
 
-      // Retrieve the ticks, domain and range from the scale.
-      var ticks = scale.ticks(tickCount),
+      // Retrieve the ticks, domain and range.
+      var ticks = tickFunction ? tickFunction.call(this, d, i) : scale.ticks(10),
           domain = scale.domain(),
           range = scale.range();
 
@@ -33,7 +33,7 @@ d3.chart.axis = function() {
       // If a custom tick format is specified, used that; otherwise, use the
       // scale's tick format. Note this means that a tick format is required if
       // the scale does not provide a ticks method.
-      var format = tickFormat || scale.tickFormat(tickCount);
+      var format = tickFormat || scale.tickFormat(10);
 
       // Select the ticks and join with new data. The ticks are joined by
       // comparing the text content (for elements) to the output of the tick
@@ -90,9 +90,9 @@ d3.chart.axis = function() {
     return axis;
   };
 
-  axis.tickCount = function(x) {
-    if (!arguments.length) return tickCount;
-    tickCount = x;
+  axis.ticks = function(x) {
+    if (!arguments.length) return tickFunction;
+    tickFunction = x == null ? x : d3.functor(x);
     return axis;
   };
 
