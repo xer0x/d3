@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="text/javascript" src="../../d3.js"></script>
+    <script type="text/javascript" src="../../d3.chart.js"></script>
+    <style type="text/css">
+
+body {
+  font: 10px sans-serif;
+}
+
+.axis line, .axis path {
+  fill: none;
+  stroke: #000;
+}
+
+    </style>
+  </head>
+  <body>
+    <script type="text/javascript">
+
+var w = 960,
+    h = 80,
+    m = [10, 10, 20, 10],
+    x = d3.scale.log().domain([.05, 9.5]).range([0, w - m[1] - m[3]]),
+    y = d3.scale.linear().range([0, h - m[0] - m[2]]);
+
+d3.select("body").append("svg:svg")
+    .attr("width", w)
+    .attr("height", h)
+  .append("svg:g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(" + m[3] + "," + (m[0] + y.range()[1]) + ")")
+    .call(d3.chart.axis().scale(x));
+
+    </script>
+  </body>
+</html>
