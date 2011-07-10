@@ -2,6 +2,8 @@
 d3.chart.axis = function() {
   var tickFormat = null,
       tickCount = 10,
+      tickSize = -6,
+      tickPadding = 3,
       scale;
 
   function axis(g) {
@@ -33,11 +35,11 @@ d3.chart.axis = function() {
           .attr("transform", function(d) { return "translate(" + scale(d) + ",0)"; });
 
       tickEnter.append("svg:line")
-          .attr("y2", 6);
+          .attr("y2", -tickSize);
 
       tickEnter.append("svg:text")
           .attr("text-anchor", "middle")
-          .attr("y", 9)
+          .attr("y", (tickSize < 0 ? -tickSize : 0) + tickPadding)
           .attr("dy", ".71em")
           .text(format);
 
@@ -75,6 +77,18 @@ d3.chart.axis = function() {
   axis.tickCount = function(x) {
     if (!arguments.length) return tickCount;
     tickCount = x;
+    return axis;
+  };
+
+  axis.tickSize = function(x) {
+    if (!arguments.length) return tickSize;
+    tickSize = x;
+    return axis;
+  };
+
+  axis.tickPadding = function(x) {
+    if (!arguments.length) return tickPadding;
+    tickPadding = x;
     return axis;
   };
 
