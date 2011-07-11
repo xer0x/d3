@@ -9,23 +9,12 @@ body {
   font: 10px sans-serif;
 }
 
-rect {
-  fill: #ddd;
-}
-
-.grid line {
-  stroke: #fff;
-}
-
-.grid .minor line {
-  stroke-width: .5px;
-}
-
-.axis line {
+line, path {
+  fill: none;
   stroke: #000;
 }
 
-.axis path {
+.minor .major {
   display: none;
 }
 
@@ -46,19 +35,15 @@ var svg = d3.select("body").append("svg:svg")
   .append("svg:g")
     .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 
-svg.append("svg:rect")
-    .attr("width", x.range()[1])
-    .attr("height", y.range()[1]);
-
 svg.append("svg:g")
-    .attr("class", "x grid")
+    .attr("class", "x minor")
     .attr("transform", "translate(0," + y.range()[1] + ")")
-    .call(d3.chart.axis().scale(x).mode("minor").tickSize(y.range()[1]).tickFormat(""));
+    .call(d3.chart.axis().scale(x).mode("closed-minor").tickSize(6).tickFormat(""));
 
 svg.append("svg:g")
     .attr("class", "x axis")
     .attr("transform", "translate(0," + y.range()[1] + ")")
-    .call(d3.chart.axis().scale(x));
+    .call(d3.chart.axis().scale(x).mode("closed"));
 
     </script>
   </body>

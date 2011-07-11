@@ -35,7 +35,7 @@ d3.select("body").append("svg:svg")
   .append("svg:g")
     .attr("class", "x axis")
     .attr("transform", "translate(" + m[3] + "," + (m[0] + y.range()[1]) + ")")
-    .call(d3.chart.axis().scale(x).tickSize(h));
+    .call(d3.chart.axis().scale(x).tickSize(y.range()[1]));
 
     </script>
   </body>
