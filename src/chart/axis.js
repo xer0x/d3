@@ -115,8 +115,8 @@ d3.chart.axis = function() {
   axis.mode = function(x) {
     if (!arguments.length) return mode;
     mode = "" + x;
-    open = /^open(?:-|$)/.test(mode);
-    section = /-section$/.test(mode);
+    open = /(?:^|-)open(?:-|$)/i.test(mode);
+    section = /(?:^|-)section(?:-|$)/i.test(mode);
     return axis;
   };
 
