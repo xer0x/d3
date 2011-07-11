@@ -3,7 +3,6 @@
   <head>
     <script type="text/javascript" src="../../d3.js"></script>
     <script type="text/javascript" src="../../d3.chart.js"></script>
-    <script type="text/javascript" src="../../d3.time.js"></script>
     <style type="text/css">
 
 body {
@@ -22,17 +21,9 @@ body {
 
 var w = 960,
     h = 80,
-    m = [10, 20, 20, 20],
-    t0 = Date.UTC(2011, 07, 01, 12),
-    t1 = Date.UTC(2011, 07, 08, 12),
-    tf = d3.time.format("%m/%d"),
-    x = d3.scale.linear().domain([t0, t1]).range([0, w - m[1] - m[3]]),
+    m = [10, 10, 20, 10],
+    x = d3.scale.linear().domain([.05, .45, .95]).range([0, 100, w - m[1] - m[3]]),
     y = d3.scale.linear().range([0, h - m[0] - m[2]]);
-
-var axis = d3.chart.axis()
-    .scale(x)
-    .ticks(days(x.domain()))
-    .tickFormat(function(t) { return tf(new Date(t)); });
 
 d3.select("body").append("svg:svg")
     .attr("width", w)
@@ -40,19 +31,7 @@ d3.select("body").append("svg:svg")
   .append("svg:g")
     .attr("class", "x axis")
     .attr("transform", "translate(" + m[3] + "," + (m[0] + y.range()[1]) + ")")
-    .call(axis);
-
-function days(domain) {
-  var d0 = domain[0],
-      d1 = domain[1],
-      dz = [];
-  d0 += 864e5 - (d0 % 864e5 || 864e5);
-  while (d0 <= d1) {
-    dz.push(new Date(d0));
-    d0 += 864e5;
-  }
-  return dz;
-}
+    .call(d3.chart.axis().scale(x).mode("closed"));
 
     </script>
   </body>

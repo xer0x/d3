@@ -4,7 +4,9 @@ d3.chart.axis = function() {
       tickFunction = null,
       tickSize = -6,
       tickPadding = 3,
-      open = false,
+      mode = "open",
+      open = true,
+      section = false,
       scale;
 
   function axis(g) {
@@ -59,8 +61,10 @@ d3.chart.axis = function() {
       // line, so if the tick size is negative, then they are padded to y = 0.
       tickEnter.append("svg:text")
           .attr("text-anchor", "middle")
-          .attr("y", Math.max(-tickSize, 0) + tickPadding)
+          .attr("y", (section ? 0 : Math.max(-tickSize, 0)) + tickPadding)
+          .attr("x", section ? function(d, i) { return i < ticks.length - 1 ? (scale(ticks[i + 1]) - scale(d)) / 2 : null; } : null)
           .attr("dy", ".71em")
+          .style("display", section ? function(d, i) { return i < ticks.length - 1 ? null : "none"; } : null)
           .text(format);
 
       // Update the tick positions and visibility.
@@ -110,8 +114,10 @@ d3.chart.axis = function() {
   };
 
   axis.mode = function(x) {
-    if (!arguments.length) return open ? "open" : "closed";
-    open = (x != "closed");
+    if (!arguments.length) return mode;
+    mode = "" + x;
+    open = /^open(?:-|$)/.test(mode);
+    section = /-section$/.test(mode);
     return axis;
   };
 
