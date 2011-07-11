@@ -90,7 +90,7 @@ d3.chart.axis = function() {
 
   axis.tickFormat = function(x) {
     if (!arguments.length) return tickFormat;
-    tickFormat = x;
+    tickFormat = x == null ? x : d3.functor(x);
     return axis;
   };
 
