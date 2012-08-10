@@ -2,7 +2,7 @@
   "name": "d3",
   "version": "2.10.0-jam.1",
   "description": "A small, free JavaScript library for manipulating documents based on data.",
-  "categories": ['Visualization'],
+  "categories": ["Visualization"],
   "keywords": [
     "dom",
     "w3c",
